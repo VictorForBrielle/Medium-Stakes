@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Medium stakes</title>
+<style>
+body {
+  text-align: center;
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+}
+
+#wheel-container {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  margin: 50px auto;
+}
+
+#wheel-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+#wheel {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+#labels {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: 0 0;
+  font-weight: bold;
+  font-size: 18px;
+  color: white;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+}
+
+#pointer {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 30px solid red;
+  z-index: 10;
+}
+
+button {
+  margin-top: 30px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+label {
+  font-weight: bold;
+  margin-right: 5px;
+}
+</style>
+</head>
+<body>
+
+<h1>Medium Stakes</h1>
+
+<!-- Sélecteur de couleur de fond -->
+<label for="bgColorPicker">Couleur de fond :</label>
+<input type="color" id="bgColorPicker" value="#f4f4f4">
+<br><br>
+
+<div id="wheel-container">
+  <div id="pointer"></div>
+  <div id="wheel-wrapper">
+    <img id="wheel" src="ma-roue.png" alt="Roue">
+    <div id="labels"></div>
+  </div>
+</div>
+
+<br>
+<button id="spinBtn">Spin</button>
+<p id="result"></p>
+
+<!-- Son de rotation -->
+<audio id="spinSound" src="son-roulette.mp3"></audio>
+
+<script>
+// 🔹 Options de la roue
+const options = [
+  "66 $",
+  "50 $",
+  "25 $",
+  "17 $",
+  "25 $",
+  "66 $",
+  "75 $",
+  "17 $",
+  "33 $",
+  "100 $",
+  "50 $",
+  "250 $",
+];
+
+// Éléments DOM
+const wheel = document.getElementById("wheel-wrapper");
+const labelsContainer = document.getElementById("labels");
+const result = document.getElementById("result");
+const spinBtn = document.getElementById("spinBtn");
+const bgColorPicker = document.getElementById("bgColorPicker");
+const spinSound = document.getElementById("spinSound");
+
+// ⚙️ Création des labels
+function createLabels() {
+  const radius = 200; // distance du centre
+  const angleStep = 360 / options.length;
+
+  options.forEach((text, index) => {
+    const angle = angleStep * index;
+
+    const label = document.createElement("div");
+    label.className = "label";
+    label.innerText = text;
+
+    // Texte droit et bien positionné
+    label.style.transform =
+      `rotate(${angle}deg) translate(${radius}px) rotate(${90 + angle}deg)`;
+
+    labelsContainer.appendChild(label);
+  });
+}
+
+createLabels();
+
+// 🔹 Changer la couleur du fond
+bgColorPicker.addEventListener("input", () => {
+  document.body.style.backgroundColor = bgColorPicker.value;
+});
+
+// 🔹 Gestion du spin
+
+let spinning = false;
+let currentRotation = 0;
+
+spinBtn.addEventListener("click", () => {
+  if (spinning) return;
+  spinning = true;
+  spinBtn.disabled = true;
+
+  // Jouer le son
+  spinSound.currentTime = 0;
+  spinSound.loop = true;
+  spinSound.play();
+
+  const segmentAngle = 360 / options.length;
+
+  // Choisir un segment et un décalage aléatoire à l'intérieur
+  const randomSegment = Math.floor(Math.random() * options.length);
+  const randomOffset = Math.random() * segmentAngle;
+
+  // Angle final avec plusieurs tours complets
+  const targetAngle = 5 * 360 + randomSegment * segmentAngle + randomOffset;
+  currentRotation += targetAngle;
+
+  // Appliquer la rotation
+  wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+  setTimeout(() => {
+    // Calculer l'option gagnante
+    const normalizedAngle = (currentRotation + 82) % 360;
+    const winningIndex = options.length - 1 - Math.floor(normalizedAngle / segmentAngle);
+    result.textContent = "Résultat : " + options[winningIndex];
+
+    spinning = false;
+    spinBtn.disabled = false;
+
+    // Arrêter le son
+    spinSound.pause();
+    spinSound.currentTime = 0;
+  }, 4000);
+});
+</script>
+
+</body>
+</html>
