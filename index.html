@@ -88,6 +88,14 @@ label {
 <input type="color" id="bgColorPicker" value="#f4f4f4">
 <br><br>
 
+  <br><br>
+
+<label>Gradient :</label>
+<input type="color" id="gradientColor1" value="#ff0000">
+<input type="color" id="gradientColor2" value="#0000ff">
+<button id="applyGradient">Apply gradient</button>
+<button id="removeGradient">Remove gradient</button>
+
 <div id="wheel-container">
   <div id="pointer"></div>
   <div id="wheel-wrapper">
@@ -145,6 +153,10 @@ const result = document.getElementById("result");
 const spinBtn = document.getElementById("spinBtn");
 const bgColorPicker = document.getElementById("bgColorPicker");
 const spinSound = document.getElementById("spinSound");
+const gradientColor1 = document.getElementById("gradientColor1");
+const gradientColor2 = document.getElementById("gradientColor2");
+const applyGradient = document.getElementById("applyGradient");
+const removeGradient = document.getElementById("removeGradient");
 
 // ⚙️ Créer les labels centrés dans chaque segment
 const radius = 200; 
@@ -165,7 +177,20 @@ options.forEach((text, index) => {
 
 // 🔹 Changer la couleur du fond
 bgColorPicker.addEventListener("input", () => {
-  document.body.style.backgroundColor = bgColorPicker.value;
+  document.body.style.background = bgColorPicker.value;
+});
+
+  // 🔹 Appliquer le dégradé
+applyGradient.addEventListener("click", () => {
+  const color1 = gradientColor1.value;
+  const color2 = gradientColor2.value;
+
+  document.body.style.background = `linear-gradient(135deg, ${color1}, ${color2})`;
+});
+
+// 🔹 Revenir à une couleur simple
+removeGradient.addEventListener("click", () => {
+  document.body.style.background = bgColorPicker.value;
 });
 
 // 🔹 Gestion du spin
